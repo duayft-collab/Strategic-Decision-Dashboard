@@ -814,13 +814,19 @@ window.doLogin = async function() {
     // onAuthStateChanged handles the rest
   } catch(e) {
     var msgs = {
-      'auth/user-not-found': 'Kullanıcı bulunamadı.',
+      'auth/user-not-found': 'Kullanıcı bulunamadı. Önce "Yeni Hesap" oluşturun.',
       'auth/wrong-password': 'Yanlış şifre.',
       'auth/invalid-credential': 'Hatalı e-posta veya şifre.',
-      'auth/too-many-requests': 'Çok fazla deneme. Lütfen bekleyin.',
-      'auth/network-request-failed': 'İnternet bağlantısı hatası.'
+      'auth/too-many-requests': 'Çok fazla deneme. 5 dakika bekleyin.',
+      'auth/network-request-failed': 'İnternet bağlantısı hatası.',
+      'auth/api-key-not-valid': '⚠ Firebase kurulum gerekli. Sayfayı aşağı kaydırın.',
+      'auth/configuration-not-found': '⚠ Firebase Authentication açılmamış.',
+      'auth/operation-not-allowed': '⚠ Email/Password girişi kapalı. Firebase Console'dan açın.'
     };
-    errEl.textContent = msgs[e.code] || 'Giriş başarısız: ' + e.message;
+    errEl.textContent = msgs[e.code] || 'Giriş başarısız [' + e.code + ']: ' + e.message;
+    if(e.code === 'auth/api-key-not-valid' || e.code === 'auth/configuration-not-found' || e.code === 'auth/operation-not-allowed') {
+      document.getElementById('setup-guide').style.display = 'block';
+    }
     btn.textContent = 'Giriş Yap';
     btn.disabled = false;
   }
@@ -831,23 +837,41 @@ window.doRegister = async function() {
   var pass = document.getElementById('reg-pass').value;
   var name = document.getElementById('reg-name').value.trim();
   var errEl = document.getElementById('reg-err');
+  var btn = document.querySelector('#register-tab button.login-btn');
   
   if (!email || !pass || !name) { errEl.textContent = 'Tüm alanları doldurun.'; return; }
   if (pass.length < 6) { errEl.textContent = 'Şifre en az 6 karakter olmalı.'; return; }
-  if (!email.includes('@')) email = email + '@stratejik.app';
+  // Use real email — don't auto-add domain for registration
+  if (!email.includes('@')) {
+    errEl.textContent = 'Lütfen geçerli bir e-posta adresi girin (@ işareti ile).';
+    return;
+  }
   
   errEl.textContent = '';
+  if(btn){btn.textContent='Hesap oluşturuluyor...';btn.disabled=true;}
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: name });
     // onAuthStateChanged handles the rest
   } catch(e) {
     var msgs = {
-      'auth/email-already-in-use': 'Bu e-posta zaten kayıtlı.',
-      'auth/weak-password': 'Şifre çok zayıf.',
-      'auth/invalid-email': 'Geçersiz e-posta adresi.'
+      'auth/email-already-in-use': 'Bu e-posta zaten kayıtlı. Giriş Yap sekmesini deneyin.',
+      'auth/weak-password': 'Şifre çok zayıf. En az 6 karakter kullanın.',
+      'auth/invalid-email': 'Geçersiz e-posta adresi.',
+      'auth/api-key-not-valid': '⚠ Firebase API key geçersiz. Aşağıdaki kurulum adımlarını takip edin.',
+      'auth/configuration-not-found': '⚠ Firebase Authentication açılmamış. Console'da Email/Password yöntemini etkinleştirin.',
+      'auth/network-request-failed': 'İnternet bağlantısı hatası. Sayfayı yenileyin.',
+      'auth/operation-not-allowed': '⚠ Email/Password girişi Firebase Console'da kapalı. Authentication > Sign-in method > Email/Password > Etkinleştir'
     };
-    errEl.textContent = msgs[e.code] || 'Kayıt başarısız: ' + e.message;
+    var msg = msgs[e.code] || ('Kayıt başarısız [' + e.code + ']: ' + e.message);
+    errEl.textContent = msg;
+    errEl.style.color = 'var(--rd)';
+    if(btn){btn.textContent='Hesap Oluştur';btn.disabled=false;}
+    
+    // Show setup guide if api-key error
+    if(e.code === 'auth/api-key-not-valid' || e.code === 'auth/configuration-not-found' || e.code === 'auth/operation-not-allowed') {
+      document.getElementById('setup-guide').style.display = 'block';
+    }
   }
 };
 
@@ -930,6 +954,26 @@ window.toggleAuthTab = function(tab) {
       Verileriniz güvenli bulut veritabanında saklanır.<br>
       Admin hesabı için e-postanıza "admin" kelimesi ekleyin.<br>
       <span style="opacity:.6">Örnek: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f293969f9b9cb2819b80999786dc919d9f">[email&#160;protected]</a> → Admin rolü otomatik atanır</span>
+    </div>
+    
+    <!-- SETUP GUIDE (shown on Firebase errors) -->
+    <div id="setup-guide" style="display:none;margin-top:14px;background:rgba(59,110,248,0.06);border:1px solid rgba(59,110,248,0.2);border-radius:12px;padding:14px 16px;font-size:11px;color:var(--tx2);line-height:1.9">
+      <div style="font-size:12px;font-weight:700;color:var(--ac);margin-bottom:8px">🛠 Firebase Kurulum Gerekli</div>
+      <div style="font-weight:700;color:var(--tx);margin-bottom:4px">Adım 1 — Authentication Aç:</div>
+      <div>1. <a href="https://console.firebase.google.com" target="_blank" style="color:var(--ac);font-weight:700">console.firebase.google.com</a> git</div>
+      <div>2. Proje: <strong>stratejikkarardestek</strong> seç</div>
+      <div>3. Sol menü → <strong>Authentication</strong></div>
+      <div>4. <strong>Sign-in method</strong> sekmesi</div>
+      <div>5. <strong>Email/Password</strong> → <strong>Etkinleştir</strong> → Kaydet</div>
+      <div style="font-weight:700;color:var(--tx);margin:8px 0 4px">Adım 2 — Authorized Domains:</div>
+      <div>Authentication → <strong>Settings</strong> → <strong>Authorized domains</strong></div>
+      <div>→ <strong>localhost</strong> ve dosyayı açtığınız domain ekli olmalı</div>
+      <div style="font-weight:700;color:var(--tx);margin:8px 0 4px">Adım 3 — API Key Kısıtlaması:</div>
+      <div>Eğer hata devam ederse:</div>
+      <div>1. <a href="https://console.cloud.google.com" target="_blank" style="color:var(--ac)">console.cloud.google.com</a> → API & Services → Credentials</div>
+      <div>2. <strong>Browser key</strong> → Key restrictions</div>
+      <div>3. <strong>None</strong> seç (kısıtlama kaldır) → Kaydet</div>
+      <button onclick="document.getElementById('setup-guide').style.display='none'" style="margin-top:10px;padding:5px 12px;border-radius:20px;background:var(--ac);color:#fff;font-size:10px;font-weight:700">Anladım, Kapat</button>
     </div>
   </div>
 </div>
