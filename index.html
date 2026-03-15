@@ -929,7 +929,7 @@ window.toggleAuthTab = function(tab) {
       <strong>🔒 Firebase Authentication aktif</strong><br>
       Verileriniz güvenli bulut veritabanında saklanır.<br>
       Admin hesabı için e-postanıza "admin" kelimesi ekleyin.<br>
-      <span style="opacity:.6">Örnek: admin@sirket.com → Admin rolü otomatik atanır</span>
+      <span style="opacity:.6">Örnek: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f293969f9b9cb2819b80999786dc919d9f">[email&#160;protected]</a> → Admin rolü otomatik atanır</span>
     </div>
   </div>
 </div>
@@ -939,7 +939,7 @@ window.toggleAuthTab = function(tab) {
   <!-- META BAR -->
   <div id="meta-bar">
     <div class="meta-left">
-      <span class="ver-pill" id="vb-ver">v10.0.0</span>
+      <span class="ver-pill" id="vb-ver">v11.0.0</span>
       <span id="vb-ts"></span>
       <span id="live-clock"></span>
       <span id="save-indicator" style="opacity:0;transition:opacity .5s;font-size:9px;font-weight:700;font-family:var(--mono)"></span>
@@ -1320,9 +1320,9 @@ window.toggleAuthTab = function(tab) {
 <div id="sugg-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('sugg-modal')">
   <div class="modal-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3>💡 Güncelleme Önerileri</h3><button class="del" onclick="closeModal('sugg-modal')">Kapat</button></div><div id="sugg-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div><div class="ed" style="margin-top:0;border:none;padding:0;background:none"><div class="ed-g"><span class="ed-l">Başlık</span><input class="ei" id="sugg-t" placeholder="Öneri başlığı"><span class="ed-l">Açıklama</span><input class="ei" id="sugg-d" placeholder="Ne eklenmeli?"><span class="ed-l">Öncelik</span><select class="es" id="sugg-p"><option value="high">🔴 Yüksek</option><option value="mid" selected>🟡 Orta</option><option value="low">🟢 Düşük</option></select></div><button class="eb" onclick="addSuggestion()" style="margin-top:8px">Öneri Ekle</button></div></div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ════════════════════ CONFIG ════════════════════ */
-var VERSION='v10.0.0', BUILD_TS='2026-03-15 · 18:22:44';
+var VERSION='v11.0.0', BUILD_TS='2026-03-15 · 18:22:44';
 var LANG='tr';
 var FX={usd:0,eur:0,eurusd:0,gold:0,goldGram:0,btc:0,eth:0,btcChg:0};
 var mwChart=null;
@@ -2042,10 +2042,4 @@ function initApp(){
   updateDailyIslamic();loadPrayerTimes();renderWisdomQuotes();updateHijriDate();
   drawRiskGauge();renderMWChart('tl');
   // Auto-refresh
-  setInterval(function(){loadFX();loadCrypto();loadGold();renderAlerts();},300000);
-  setInterval(function(){var h=new Date().getHours();if(h===8||h===12)loadEconomists(true);},60000);
-  setInterval(renderInvestorQuote,3600000);
-}
-</script>
-</body>
-</html>
+  setInterval(function(){loadF
