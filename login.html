@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeOS — Giriş</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;min-height:100vh;display:flex;align-items:center;justify-content:center;color:#1a1a1a}
+.card{background:#fff;border-radius:16px;border:0.5px solid rgba(0,0,0,.1);padding:40px;width:400px;max-width:95vw}
+.logo{text-align:center;margin-bottom:32px}
+.logo-title{font-size:24px;font-weight:600;letter-spacing:-.5px}
+.logo-sub{font-size:13px;color:#666;margin-top:4px}
+.fr{margin-bottom:16px}
+.fr label{font-size:12px;color:#666;display:block;margin-bottom:5px;font-weight:500}
+.fr input{width:100%;padding:10px 12px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);font-size:14px;font-family:inherit;background:#fafafa;transition:border-color .15s}
+.fr input:focus{outline:none;border-color:rgba(0,0,0,.5);background:#fff}
+.btn-login{width:100%;padding:11px;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:500;border:none;cursor:pointer;font-family:inherit;margin-top:8px;transition:opacity .15s}
+.btn-login:hover{opacity:.85}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:#999;font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.1)}
+.btn-google{width:100%;padding:10px;border-radius:8px;background:#fff;border:0.5px solid rgba(0,0,0,.2);font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s}
+.btn-google:hover{background:#f5f5f3}
+.g-icon{width:18px;height:18px}
+.error{background:#FCEBEB;color:#A32D2D;padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
+.loading{display:none;text-align:center;padding:20px;color:#666;font-size:13px}
+.footer{text-align:center;margin-top:24px;font-size:11px;color:#999}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-title">TradeOS</div>
+    <div class="logo-sub">Uluslararası Ticaret Yönetim Sistemi</div>
+  </div>
+
+  <div class="error" id="errorBox"></div>
+
+  <div id="loginForm">
+    <div class="fr">
+      <label>E-posta</label>
+      <input type="email" id="email" placeholder="ornek@firma.com" autocomplete="email">
+    </div>
+    <div class="fr">
+      <label>Şifre</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-login" id="loginBtn" onclick="login()">Giriş Yap</button>
+
+    <div class="divider">veya</div>
+
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg class="g-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Google ile Giriş
+    </button>
+  </div>
+
+  <div class="loading" id="loadingBox">Giriş yapılıyor...</div>
+
+  <div class="footer">TradeOS · Tüm hakları saklıdır</div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script>
+// Zaten giriş yapılmışsa yönlendir
+auth.onAuthStateChanged(user => {
+  if (user) window.location.href = "dashboard.html";
+});
+
+function showError(msg) {
+  const el = document.getElementById("errorBox");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function setLoading(val) {
+  document.getElementById("loginForm").style.display = val ? "none" : "block";
+  document.getElementById("loadingBox").style.display = val ? "block" : "none";
+  document.getElementById("loginBtn").disabled = val;
+}
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const pass  = document.getElementById("password").value;
+  if (!email || !pass) { showError("E-posta ve şifre zorunludur."); return; }
+  setLoading(true);
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    window.location.href = "dashboard.html";
+  } catch (e) {
+    setLoading(false);
+    const msgs = {
+      "auth/user-not-found"  : "Bu e-posta adresi kayıtlı değil.",
+      "auth/wrong-password"  : "Şifre hatalı.",
+      "auth/invalid-email"   : "Geçersiz e-posta adresi.",
+      "auth/too-many-requests": "Çok fazla deneme. Lütfen bekleyin.",
+    };
+    showError(msgs[e.code] || "Giriş başarısız: " + e.message);
+  }
+}
+
+async function loginGoogle() {
+  setLoading(true);
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+    window.location.href = "dashboard.html";
+  } catch (e) {
+    setLoading(false);
+    showError("Google girişi başarısız: " + e.message);
+  }
+}
+</script>
+</body>
+</html>
