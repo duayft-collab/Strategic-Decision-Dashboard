@@ -1,3 +1,21 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyB5eValPPkRuPtJIgDnB7jRWOt2zythuRI",
+  authDomain: "companyplatform-9e1a8.firebaseapp.com",
+  projectId: "companyplatform-9e1a8",
+  storageBucket: "companyplatform-9e1a8.firebasestorage.app",
+  messagingSenderId: "526343866340",
+  appId: "1:526343866340:web:31f9c04b85e284eac7e9f1"
+};
+```
+
+→ Sayfanın altında **"Commit changes"** butonuna basın.
+
+---
+
+**Bitti mi?** Sonra GitHub Pages linkini açıp kullanıcı adı ve şifrenizle giriş yapın:
+```
+E-posta:  admin@firmaniz.com
+Şifre:    TradeOS2026!
 // ============================================================
 // ADIM 1: Bu dosyayı Firebase bilgilerinizle doldurun
 // Firebase Console > Proje Ayarları > Uygulamalar > SDK
