@@ -380,3 +380,290 @@ showDashboard = function() {
     });
   }, 100);
 };
+
+// ============================================================
+// NAVLUN & KARGO - Detayli
+// ============================================================
+var _quotes = [];
+var _shipments = [
+  {id:1,ref:"SHP-041",firm:"Muller & Sohne",route:"Istanbul-Hamburg",mode:"deniz",status:"transit",eta:"28 Mar",cost:"$2,400",agent:"Kuehne+Nagel"},
+  {id:2,ref:"SHP-039",firm:"Al Rashid Import",route:"Mersin-Dubai",mode:"deniz",status:"gumruk",eta:"2 Nis",cost:"$1,850",agent:"Agility"},
+  {id:3,ref:"SHP-038",firm:"Gulf Star FZE",route:"Istanbul-Sharjah",mode:"hava",status:"transit",eta:"24 Mar",cost:"$4,200",agent:"DHL Express"}
+];
+var _offers = [];
+var _offerEdit = null;
+
+function showNavlun() {
+  setPage('<div style="padding:20px 24px"><div style="font-size:18px;font-weight:600;margin-bottom:18px">Navlun & Kargo Yonetimi</div><div style="display:flex;gap:0;border-bottom:1px solid #e0e0e0;margin-bottom:20px" id="navtabs"><div onclick="navTab(\'panel\',this)" style="padding:8px 16px;font-size:13px;cursor:pointer;font-weight:500;border-bottom:2px solid #1a1a1a;margin-bottom:-1px">Genel Bakis</div><div onclick="navTab(\'teklif\',this)" style="padding:8px 16px;font-size:13px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px">Teklif Al</div><div onclick="navTab(\'ver\',this)" style="padding:8px 16px;font-size:13px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px">Teklif Ver</div><div onclick="navTab(\'aktif\',this)" style="padding:8px 16px;font-size:13px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px">Aktif Sevkiyatlar</div></div><div id="nav-content"></div></div>');
+  navShowPanel();
+}
+
+function navTab(t, el) {
+  document.querySelectorAll("#navtabs div").forEach(function(x){x.style.fontWeight="";x.style.color="#666";x.style.borderBottom="2px solid transparent";});
+  el.style.fontWeight="500";el.style.color="#1a1a1a";el.style.borderBottom="2px solid #1a1a1a";
+  if(t==="panel") navShowPanel();
+  else if(t==="teklif") navShowTeklif();
+  else if(t==="ver") navShowVer();
+  else if(t==="aktif") navShowAktif();
+}
+
+function navShowPanel() {
+  var c=document.getElementById("nav-content"); if(!c) return;
+  c.innerHTML='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Aktif Sevkiyat</div><div style="font-size:20px;font-weight:500">'+_shipments.length+'</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Denizde</div><div style="font-size:20px;font-weight:500">'+_shipments.filter(function(s){return s.mode==="deniz";}).length+'</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Havada</div><div style="font-size:20px;font-weight:500">'+_shipments.filter(function(s){return s.mode==="hava";}).length+'</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Bu Ay Navlun</div><div style="font-size:20px;font-weight:500">$28.4K</div></div></div>'+
+  '<div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid #e0e0e0;background:#fafafa"><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Ref</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Firma</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Guzergah</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Mod</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Durum</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">ETA</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Maliyet</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Acente</th></tr></thead><tbody>'+
+  _shipments.map(function(s){
+    var mi=s.mode==="deniz"?"🚢":s.mode==="hava"?"✈️":"🚛";
+    var sc=s.status==="transit"?"background:#fef3e2;color:#8a5000":s.status==="gumruk"?"background:#f0eeff;color:#4a3f9e":"background:#e6f4ea;color:#1e6e2e";
+    var sl=s.status==="transit"?"Transitte":s.status==="gumruk"?"Gumrukte":"Teslim";
+    return '<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 14px;font-size:12px;color:#666">'+s.ref+'</td><td style="padding:10px 14px;font-size:13px;font-weight:500">'+s.firm+'</td><td style="padding:10px 14px;font-size:12px">'+s.route+'</td><td style="padding:10px 14px;font-size:16px">'+mi+'</td><td style="padding:10px 14px"><span style="display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;'+sc+'">'+sl+'</span></td><td style="padding:10px 14px;font-size:12px">'+s.eta+'</td><td style="padding:10px 14px;font-size:13px;font-weight:500">'+s.cost+'</td><td style="padding:10px 14px;font-size:12px;color:#666">'+s.agent+'</td></tr>';
+  }).join("")+
+  '</tbody></table></div>';
+}
+
+function navShowTeklif() {
+  var c=document.getElementById("nav-content"); if(!c) return;
+  c.innerHTML='<div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;padding:20px;margin-bottom:16px"><div style="font-size:14px;font-weight:500;margin-bottom:16px">Tasima Modu Sec</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"><div id="m-deniz" onclick="navSelMode(\'deniz\')" style="border:2px solid #1a1a1a;border-radius:12px;padding:16px;cursor:pointer;text-align:center"><div style="font-size:24px;margin-bottom:8px">🚢</div><div style="font-size:13px;font-weight:500">Deniz Navlunu</div><div style="font-size:11px;color:#999">FCL / LCL</div></div><div id="m-hava" onclick="navSelMode(\'hava\')" style="border:1px solid #e0e0e0;border-radius:12px;padding:16px;cursor:pointer;text-align:center"><div style="font-size:24px;margin-bottom:8px">✈️</div><div style="font-size:13px;font-weight:500">Hava Kargo</div><div style="font-size:11px;color:#999">Express / Standart</div></div><div id="m-kara" onclick="navSelMode(\'kara\')" style="border:1px solid #e0e0e0;border-radius:12px;padding:16px;cursor:pointer;text-align:center"><div style="font-size:24px;margin-bottom:8px">🚛</div><div style="font-size:13px;font-weight:500">Kara Kargo</div><div style="font-size:11px;color:#999">TIR / ADR</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Yukleme Yeri</label><input id="rfq-from" placeholder="Istanbul" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Varis Yeri</label><input id="rfq-to" placeholder="Hamburg" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Agirlik (kg)</label><input id="rfq-wt" type="number" placeholder="1000" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button onclick="navGetQuotes()" style="padding:8px 20px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:13px">Teklif Al →</button></div></div><div id="quotes-result"></div>';
+}
+
+var _navMode = "deniz";
+function navSelMode(m) {
+  _navMode=m;
+  ["deniz","hava","kara"].forEach(function(x){var el=document.getElementById("m-"+x);if(el){el.style.border="1px solid #e0e0e0";}});
+  var sel=document.getElementById("m-"+m);if(sel)sel.style.border="2px solid #1a1a1a";
+}
+
+function navGetQuotes() {
+  var from=document.getElementById("rfq-from").value||"Istanbul";
+  var to=document.getElementById("rfq-to").value||"Varis";
+  var wt=parseFloat(document.getElementById("rfq-wt").value)||1000;
+  var base=_navMode==="hava"?4.2:_navMode==="kara"?1.8:0.08;
+  var carriers=_navMode==="deniz"?["MSC Mediterranean","Maersk Line","CMA CGM"]:_navMode==="hava"?["Turkish Airlines Cargo","Lufthansa Cargo","DHL Express"]:["DB Schenker","DSV Road","Ekol Lojistik"];
+  var prices=carriers.map(function(_,i){return Math.round(wt*base*(1+i*0.12));});
+  var min=Math.min.apply(null,prices);
+  var res=document.getElementById("quotes-result"); if(!res) return;
+  res.innerHTML='<div style="font-size:13px;font-weight:500;margin:16px 0 12px">'+from+' → '+to+' Teklifleri</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">'+
+  carriers.map(function(c,i){
+    var isBest=prices[i]===min;
+    return '<div style="background:#fff;border-radius:12px;border:'+(isBest?"2px solid #1e6e2e":"1px solid #e0e0e0")+';padding:16px;position:relative">'+(isBest?'<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#1e6e2e;color:#fff;font-size:11px;padding:2px 12px;border-radius:20px;white-space:nowrap">En Iyi Fiyat</div>':'')+'<div style="font-size:11px;color:#999;margin-bottom:4px">'+c+'</div><div style="font-size:22px;font-weight:500;margin-bottom:2px">$'+prices[i].toLocaleString()+'</div><div style="font-size:11px;color:#999;margin-bottom:12px">toplam maliyet</div><button onclick="alert(\'Teklif onaylandi: '+c+' - $'+prices[i]+'\')" style="width:100%;padding:7px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:12px">Sec & Onayla</button></div>';
+  }).join("")+'</div>';
+}
+
+function navShowVer() {
+  var c=document.getElementById("nav-content"); if(!c) return;
+  c.innerHTML='<div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;padding:20px;margin-bottom:16px"><div style="font-size:14px;font-weight:500;margin-bottom:16px">Musteriye Kargo Teklifi Hazirla</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Musteri Firma</label><input id="ov-firm" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Guzergah</label><input id="ov-route" placeholder="Istanbul-Hamburg" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Tasima Modu</label><select id="ov-mode" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option value="deniz">🚢 Deniz</option><option value="hava">✈️ Hava</option><option value="kara">🚛 Kara</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Navlun Maliyeti ($)</label><input id="ov-cost" type="number" oninput="navCalcOffer()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Kar Marji (%)</label><input id="ov-margin" type="number" value="15" oninput="navCalcOffer()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Teklif Fiyati ($)</label><input id="ov-price" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit;background:#f9f9f9" readonly></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Transit Sure</label><input id="ov-transit" placeholder="18-22 gun" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Incoterm</label><select id="ov-inco" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option>FOB</option><option>CIF</option><option>DAP</option><option>DDP</option></select></div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button onclick="navSaveOffer()" style="padding:8px 20px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:13px">Teklif Olustur</button></div></div>'+
+  '<div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid #e0e0e0;background:#fafafa"><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Teklif No</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Musteri</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Guzergah</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Fiyat</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Durum</th></tr></thead><tbody id="offers-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#999">Henuz teklif yok</td></tr></tbody></table></div>';
+  navLoadOffers();
+}
+
+function navCalcOffer() {
+  var cost=parseFloat(document.getElementById("ov-cost").value)||0;
+  var margin=parseFloat(document.getElementById("ov-margin").value)||0;
+  var price=document.getElementById("ov-price");
+  if(price) price.value=Math.round(cost*(1+margin/100));
+}
+
+function navSaveOffer() {
+  var firm=document.getElementById("ov-firm").value.trim();
+  if(!firm){alert("Musteri firma zorunlu");return;}
+  var data={firm:firm,route:document.getElementById("ov-route").value,mode:document.getElementById("ov-mode").value,price:parseFloat(document.getElementById("ov-price").value)||0,transit:document.getElementById("ov-transit").value,incoterm:document.getElementById("ov-inco").value,status:"bekliyor",createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  db.collection("to_freight").add(data).then(function(){navLoadOffers();});
+}
+
+function navLoadOffers() {
+  db.collection("to_freight").orderBy("createdAt","desc").get().then(function(snap){
+    _offers=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    var tbody=document.getElementById("offers-tbody"); if(!tbody) return;
+    if(!_offers.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:#999">Henuz teklif yok</td></tr>';return;}
+    tbody.innerHTML=_offers.map(function(o){
+      return '<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 14px;font-size:12px;color:#666">FRT-'+o.id.slice(-4)+'</td><td style="padding:10px 14px;font-size:13px;font-weight:500">'+(o.firm||"—")+'</td><td style="padding:10px 14px;font-size:12px">'+(o.route||"—")+'</td><td style="padding:10px 14px;font-size:13px;font-weight:500">$'+(o.price?Number(o.price).toLocaleString():"—")+'</td><td style="padding:10px 14px"><span style="display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;background:#fef3e2;color:#8a5000">Bekliyor</span></td></tr>';
+    }).join("");
+  });
+}
+
+function navShowAktif() {
+  var c=document.getElementById("nav-content"); if(!c) return;
+  navShowPanel();
+}
+
+// ============================================================
+// NUMUNE ARSİVİ - Detayli
+// ============================================================
+var _samples = [];
+var _sEdit = null;
+
+function showSamples() {
+  setPage('<div style="padding:20px 24px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><div style="font-size:18px;font-weight:600">Numune Arsivi</div><button onclick="smpNew()" style="padding:8px 16px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:13px">+ Yeni Numune</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px"><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Toplam</div><div style="font-size:20px;font-weight:500" id="sm1">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Stokta</div><div style="font-size:20px;font-weight:500" id="sm2">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Musteride</div><div style="font-size:20px;font-weight:500" id="sm3">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Onaylandi</div><div style="font-size:20px;font-weight:500;color:#1e6e2e" id="sm4">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Bekliyor</div><div style="font-size:20px;font-weight:500;color:#8a5000" id="sm5">-</div></div></div><div style="display:flex;gap:8px;margin-bottom:14px"><input id="sm-srch" placeholder="Kod, urun, firma..." oninput="smpRender()" style="flex:1;max-width:260px;padding:8px 12px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><button onclick="smpFilter(\'tumu\',this)" style="padding:5px 12px;border-radius:20px;border:1px solid #1a1a1a;background:#1a1a1a;color:#fff;font-size:12px;cursor:pointer">Tumu</button><button onclick="smpFilter(\'stokta\',this)" style="padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:transparent;color:#666;font-size:12px;cursor:pointer">Stokta</button><button onclick="smpFilter(\'musteride\',this)" style="padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:transparent;color:#666;font-size:12px;cursor:pointer">Musteride</button><button onclick="smpFilter(\'onaylandi\',this)" style="padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:transparent;color:#666;font-size:12px;cursor:pointer">Onaylandi</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px" id="smp-grid"></div><div id="smpmodal" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:60px"><div style="background:#fff;border-radius:14px;padding:24px;width:500px;max-width:95vw;max-height:80vh;overflow-y:auto"><div style="font-size:16px;font-weight:600;margin-bottom:18px" id="smptitle">Yeni Numune</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Numune Kodu</label><input id="sc-code" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit" placeholder="NM-2026-001"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Urun Adi</label><input id="sc-name" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Kategori</label><select id="sc-cat" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option value="tekstil">Tekstil</option><option value="kimya">Kimya</option><option value="metal">Metal</option><option value="elektronik">Elektronik</option><option value="gida">Gida</option><option value="makine">Makine</option><option value="diger">Diger</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Durum</label><select id="sc-st" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option value="stokta">Stokta</option><option value="musteride">Musteride</option><option value="bekliyor">Onay Bekliyor</option><option value="onaylandi">Onaylandi</option><option value="reddedildi">Reddedildi</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Firma</label><input id="sc-firm" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Mensei Ulke</label><input id="sc-origin" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Miktar</label><input id="sc-qty" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit" placeholder="500 gr"></div></div><div style="margin-top:12px"><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Teknik Bilgi</label><textarea id="sc-desc" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit;resize:vertical;min-height:70px"></textarea></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button onclick="smpClose()" style="padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:transparent;font-size:13px;cursor:pointer">Iptal</button><button onclick="smpSave()" style="padding:8px 16px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;font-size:13px;cursor:pointer">Kaydet</button></div></div></div></div>');
+  smpLoad();
+}
+
+var _sFilter = "tumu";
+function smpLoad(){
+  db.collection("to_samples").orderBy("createdAt","desc").get().then(function(snap){
+    _samples=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    var s1=document.getElementById("sm1");if(s1)s1.textContent=_samples.length;
+    var s2=document.getElementById("sm2");if(s2)s2.textContent=_samples.filter(function(s){return s.status==="stokta";}).length;
+    var s3=document.getElementById("sm3");if(s3)s3.textContent=_samples.filter(function(s){return s.status==="musteride";}).length;
+    var s4=document.getElementById("sm4");if(s4)s4.textContent=_samples.filter(function(s){return s.status==="onaylandi";}).length;
+    var s5=document.getElementById("sm5");if(s5)s5.textContent=_samples.filter(function(s){return s.status==="bekliyor";}).length;
+    smpRender();
+  });
+}
+
+function smpFilter(f,el){_sFilter=f;smpRender();}
+function smpRender(){
+  var q=(document.getElementById("sm-srch")?document.getElementById("sm-srch").value:"").toLowerCase();
+  var list=_samples.filter(function(s){
+    var mF=_sFilter==="tumu"||s.status===_sFilter;
+    var mQ=!q||(s.code+s.name+s.firm+"").toLowerCase().indexOf(q)>-1;
+    return mF&&mQ;
+  });
+  var CI={tekstil:"🧵",kimya:"⚗️",metal:"🔩",elektronik:"💡",gida:"🌾",makine:"⚙️",diger:"📦"};
+  var SS={stokta:"background:#e3f0ff;color:#1a5fb4",musteride:"background:#fef3e2;color:#8a5000",bekliyor:"background:#f0eeff;color:#4a3f9e",onaylandi:"background:#e6f4ea;color:#1e6e2e",reddedildi:"background:#fce8e6;color:#c62828"};
+  var SL={stokta:"Stokta",musteride:"Musteride",bekliyor:"Bekliyor",onaylandi:"Onaylandi",reddedildi:"Reddedildi"};
+  var grid=document.getElementById("smp-grid");if(!grid)return;
+  if(!list.length){grid.innerHTML='<div style="text-align:center;padding:40px;color:#999;grid-column:1/-1">Numune bulunamadi</div>';return;}
+  grid.innerHTML=list.map(function(s){
+    var sc=SS[s.status]||"background:#f1f1f1;color:#555";
+    var sl=SL[s.status]||"—";
+    var icon=CI[s.cat]||"📦";
+    return '<div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;overflow:hidden;cursor:pointer" onmouseover="this.style.borderColor=\'#999\'" onmouseout="this.style.borderColor=\'#e0e0e0\'"><div style="background:#f9f9f9;padding:24px;text-align:center;font-size:36px">'+icon+'</div><div style="padding:14px"><div style="font-size:10px;color:#999;margin-bottom:3px;font-family:monospace">'+(s.code||"—")+'</div><div style="font-size:13px;font-weight:500;margin-bottom:3px">'+(s.name||"—")+'</div><div style="font-size:11px;color:#999;margin-bottom:10px">'+(s.firm||"Firma atanmamis")+'</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;'+sc+'">'+sl+'</span><div style="display:flex;gap:5px"><button onclick="smpEdit(\''+s.id+'\')" style="background:none;border:none;cursor:pointer;color:#999;font-size:13px">✎</button><button onclick="smpDel(\''+s.id+'\')" style="background:none;border:none;cursor:pointer;color:#c62828;font-size:13px">🗑</button></div></div></div></div>';
+  }).join("");
+}
+
+function smpNew(){_sEdit=null;document.getElementById("smptitle").textContent="Yeni Numune";["sc-code","sc-name","sc-firm","sc-origin","sc-qty","sc-desc"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});document.getElementById("smpmodal").style.display="flex";}
+function smpEdit(id){var s=_samples.find(function(x){return x.id===id;});if(!s)return;_sEdit=id;document.getElementById("smptitle").textContent="Numune Duzenle";document.getElementById("sc-code").value=s.code||"";document.getElementById("sc-name").value=s.name||"";document.getElementById("sc-cat").value=s.cat||"tekstil";document.getElementById("sc-st").value=s.status||"stokta";document.getElementById("sc-firm").value=s.firm||"";document.getElementById("sc-origin").value=s.origin||"";document.getElementById("sc-qty").value=s.qty||"";document.getElementById("sc-desc").value=s.desc||"";document.getElementById("smpmodal").style.display="flex";}
+function smpClose(){document.getElementById("smpmodal").style.display="none";}
+function smpSave(){
+  var name=document.getElementById("sc-name").value.trim();if(!name){alert("Urun adi zorunlu");return;}
+  var data={code:document.getElementById("sc-code").value.trim(),name:name,cat:document.getElementById("sc-cat").value,status:document.getElementById("sc-st").value,firm:document.getElementById("sc-firm").value.trim(),origin:document.getElementById("sc-origin").value.trim(),qty:document.getElementById("sc-qty").value.trim(),desc:document.getElementById("sc-desc").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  var p;if(_sEdit){p=db.collection("to_samples").doc(_sEdit).update(data);}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();p=db.collection("to_samples").add(data);}
+  p.then(function(){smpClose();smpLoad();});
+}
+function smpDel(id){if(!confirm("Silmek istediginize emin misiniz?"))return;db.collection("to_samples").doc(id).delete().then(function(){smpLoad();});}
+
+// ============================================================
+// YAPILACAKLAR - Kanban
+// ============================================================
+var _tasks = [];
+var _taskEdit = null;
+
+function showTasks() {
+  setPage('<div style="padding:20px 24px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><div style="font-size:18px;font-weight:600">Yapilacaklar & Gorevler</div><button onclick="taskNew()" style="padding:8px 16px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:13px">+ Yeni Gorev</button></div><div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px" id="kanban-board"></div><div id="taskmodal" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:60px"><div style="background:#fff;border-radius:14px;padding:24px;width:500px;max-width:95vw;max-height:80vh;overflow-y:auto"><div style="font-size:16px;font-weight:600;margin-bottom:18px" id="tasktitle">Yeni Gorev</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Gorev Basligi</label><input id="tk-title" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Oncelik</label><select id="tk-pri" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option value="high">Yuksek</option><option value="medium" selected>Orta</option><option value="low">Dusuk</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Durum</label><select id="tk-stage" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option value="todo">Yapilacak</option><option value="inprogress">Devam Ediyor</option><option value="review">Incelemede</option><option value="done">Tamamlandi</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Son Tarih</label><input id="tk-due" type="date" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div style="grid-column:1/-1"><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Atanan Kisi</label><input id="tk-assign" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit" placeholder="Ad Soyad"></div></div><div style="margin-top:12px"><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Aciklama</label><textarea id="tk-desc" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit;resize:vertical;min-height:70px"></textarea></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button onclick="taskClose()" style="padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:transparent;font-size:13px;cursor:pointer">Iptal</button><button onclick="taskSave()" style="padding:8px 16px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;font-size:13px;cursor:pointer">Kaydet</button></div></div></div></div>');
+  taskLoad();
+}
+
+function taskLoad(){
+  db.collection("to_tasks").orderBy("createdAt","desc").get().then(function(snap){
+    _tasks=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    taskRender();
+  });
+}
+
+function taskRender(){
+  var STAGES=[
+    {id:"todo",label:"Yapilacak",bg:"#e3f0ff",color:"#1a5fb4"},
+    {id:"inprogress",label:"Devam Ediyor",bg:"#fef3e2",color:"#8a5000"},
+    {id:"review",label:"Incelemede",bg:"#f0eeff",color:"#4a3f9e"},
+    {id:"done",label:"Tamamlandi",bg:"#e6f4ea",color:"#1e6e2e"}
+  ];
+  var board=document.getElementById("kanban-board");if(!board)return;
+  board.innerHTML=STAGES.map(function(s){
+    var items=_tasks.filter(function(t){return t.stage===s.id;});
+    var PC={high:"#c62828",medium:"#8a5000",low:"#1e6e2e"};
+    return '<div style="min-width:220px;flex:1;max-width:280px"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:8px 8px 0 0;background:'+s.bg+';color:'+s.color+'"><span style="font-size:12px;font-weight:500">'+s.label+'</span><span style="background:rgba(0,0,0,.1);border-radius:20px;padding:1px 7px;font-size:11px">'+items.length+'</span></div><div style="background:#fff;border:1px solid #e0e0e0;border-top:none;border-radius:0 0 8px 8px;padding:8px;min-height:200px">'+
+    items.map(function(t){
+      var pc=PC[t.priority]||"#666";
+      return '<div style="background:#f9f9f9;border-radius:8px;padding:10px;margin-bottom:7px;border-left:3px solid '+pc+';cursor:pointer" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'#f9f9f9\'"><div style="font-size:12px;font-weight:500;margin-bottom:4px">'+(t.title||"—")+'</div>'+(t.assignee?'<div style="font-size:10px;color:#999">👤 '+t.assignee+'</div>':'')+(t.due?'<div style="font-size:10px;color:#999">📅 '+t.due+'</div>':'')+'<div style="display:flex;gap:4px;margin-top:6px;justify-content:flex-end"><button onclick="taskEdit(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;color:#999;font-size:12px">✎</button><button onclick="taskDel(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;color:#c62828;font-size:12px">🗑</button></div></div>';
+    }).join("")+
+    '<div onclick="taskNew()" style="text-align:center;padding:8px;font-size:12px;color:#999;cursor:pointer">+ Ekle</div></div></div>';
+  }).join("");
+}
+
+function taskNew(){_taskEdit=null;document.getElementById("tasktitle").textContent="Yeni Gorev";["tk-title","tk-assign","tk-desc"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});document.getElementById("taskmodal").style.display="flex";}
+function taskEdit(id){var t=_tasks.find(function(x){return x.id===id;});if(!t)return;_taskEdit=id;document.getElementById("tasktitle").textContent="Gorev Duzenle";document.getElementById("tk-title").value=t.title||"";document.getElementById("tk-pri").value=t.priority||"medium";document.getElementById("tk-stage").value=t.stage||"todo";document.getElementById("tk-due").value=t.due||"";document.getElementById("tk-assign").value=t.assignee||"";document.getElementById("tk-desc").value=t.desc||"";document.getElementById("taskmodal").style.display="flex";}
+function taskClose(){document.getElementById("taskmodal").style.display="none";}
+function taskSave(){
+  var title=document.getElementById("tk-title").value.trim();if(!title){alert("Baslik zorunlu");return;}
+  var data={title:title,priority:document.getElementById("tk-pri").value,stage:document.getElementById("tk-stage").value,due:document.getElementById("tk-due").value,assignee:document.getElementById("tk-assign").value.trim(),desc:document.getElementById("tk-desc").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  var p;if(_taskEdit){p=db.collection("to_tasks").doc(_taskEdit).update(data);}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();p=db.collection("to_tasks").add(data);}
+  p.then(function(){taskClose();taskLoad();});
+}
+function taskDel(id){if(!confirm("Silmek istediginize emin misiniz?"))return;db.collection("to_tasks").doc(id).delete().then(function(){taskLoad();});}
+
+// ============================================================
+// PRİM YÖNETİMİ
+// ============================================================
+var _bonuses = [];
+var _bonEdit = null;
+
+function showBonus() {
+  setPage('<div style="padding:20px 24px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><div style="font-size:18px;font-weight:600">Prim Yonetimi</div><button onclick="bonNew()" style="padding:8px 16px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;cursor:pointer;font-size:13px">+ Prim Hazirla</button></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px"><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Toplam Prim</div><div style="font-size:20px;font-weight:500" id="bn1">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Onay Bekleyen</div><div style="font-size:20px;font-weight:500;color:#8a5000" id="bn2">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Onaylanan</div><div style="font-size:20px;font-weight:500;color:#1e6e2e" id="bn3">-</div></div><div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:14px"><div style="font-size:11px;color:#999">Odenen</div><div style="font-size:20px;font-weight:500" id="bn4">-</div></div></div><div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;padding:20px;margin-bottom:16px"><div style="font-size:14px;font-weight:500;margin-bottom:14px">Prim Hesapla</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Baz Maas (TL)</label><input id="bc-sal" type="number" oninput="bonCalc()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Hedef</label><input id="bc-target" type="number" oninput="bonCalc()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Gerceklesen</label><input id="bc-actual" type="number" oninput="bonCalc()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;background:#f9f9f9;border-radius:10px;padding:14px"><div><div style="font-size:11px;color:#999">Gerceklasme</div><div style="font-size:18px;font-weight:500" id="bc-rate">-%</div></div><div><div style="font-size:11px;color:#999">Prim Orani</div><div style="font-size:18px;font-weight:500" id="bc-pct">-</div></div><div><div style="font-size:11px;color:#999">Prim Tutari</div><div style="font-size:18px;font-weight:500;color:#1e6e2e" id="bc-amt">-</div></div><div><div style="font-size:11px;color:#999">Net (est.)</div><div style="font-size:18px;font-weight:500" id="bc-net">-</div></div></div></div><div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid #e0e0e0;background:#fafafa"><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Personel</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Prim Turu</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Donem</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Tutar</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500">Durum</th><th style="padding:10px 14px;font-size:11px;color:#999;text-align:left;font-weight:500"></th></tr></thead><tbody id="bon-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;color:#999">Yukleniyor...</td></tr></tbody></table></div><div id="bonmodal" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:60px"><div style="background:#fff;border-radius:14px;padding:24px;width:480px;max-width:95vw;max-height:80vh;overflow-y:auto"><div style="font-size:16px;font-weight:600;margin-bottom:18px" id="bontitle">Prim Hazirla</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Personel</label><input id="bn-emp" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Prim Turu</label><select id="bn-type" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option value="satis">Satis Primi</option><option value="performans">Performans Primi</option><option value="hedef">Hedef Primi</option><option value="yillik">Yillik Ikramiye</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Donem</label><select id="bn-period" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"><option>Q1 2026</option><option>Q2 2026</option><option>Q3 2026</option><option>Q4 2026</option></select></div><div><label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Tutar (TL)</label><input id="bn-amt" type="number" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;font-size:13px;font-family:inherit"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button onclick="bonClose()" style="padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:transparent;font-size:13px;cursor:pointer">Iptal</button><button onclick="bonSave()" style="padding:8px 16px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;font-size:13px;cursor:pointer">Onaya Gonder</button></div></div></div></div>');
+  bonLoad();
+}
+
+function bonCalc(){
+  var sal=parseFloat(document.getElementById("bc-sal").value)||0;
+  var target=parseFloat(document.getElementById("bc-target").value)||1;
+  var actual=parseFloat(document.getElementById("bc-actual").value)||0;
+  var rate=Math.round(actual/target*100);
+  var pct=rate>=120?20:rate>=100?15:rate>=80?10:0;
+  var amt=Math.round(sal*pct/100);
+  var r=document.getElementById("bc-rate");if(r)r.textContent=rate+"%";
+  var p=document.getElementById("bc-pct");if(p)p.textContent=pct+"%";
+  var a=document.getElementById("bc-amt");if(a)a.textContent="₺"+amt.toLocaleString();
+  var n=document.getElementById("bc-net");if(n)n.textContent="₺"+Math.round(amt*0.85).toLocaleString();
+}
+
+function bonLoad(){
+  db.collection("to_bonuses").orderBy("createdAt","desc").get().then(function(snap){
+    _bonuses=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    var total=_bonuses.reduce(function(s,b){return s+(Number(b.amount)||0);},0);
+    var b1=document.getElementById("bn1");if(b1)b1.textContent="₺"+total.toLocaleString();
+    var b2=document.getElementById("bn2");if(b2)b2.textContent=_bonuses.filter(function(b){return b.status==="bekliyor";}).length;
+    var b3=document.getElementById("bn3");if(b3)b3.textContent=_bonuses.filter(function(b){return b.status==="onaylandi";}).length;
+    var b4=document.getElementById("bn4");if(b4)b4.textContent=_bonuses.filter(function(b){return b.status==="odendi";}).length;
+    var ST={bekliyor:"background:#fef3e2;color:#8a5000",onaylandi:"background:#e6f4ea;color:#1e6e2e",reddedildi:"background:#fce8e6;color:#c62828",odendi:"background:#f1f1f1;color:#555"};
+    var SL={bekliyor:"Bekliyor",onaylandi:"Onaylandi",reddedildi:"Reddedildi",odendi:"Odendi"};
+    var tbody=document.getElementById("bon-tbody");if(!tbody)return;
+    if(!_bonuses.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:#999">Kayit yok</td></tr>';return;}
+    tbody.innerHTML=_bonuses.map(function(b){
+      var sc=ST[b.status]||"background:#f1f1f1;color:#555";
+      var sl=SL[b.status]||b.status||"—";
+      return '<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 14px;font-size:13px;font-weight:500">'+(b.employee||"—")+'</td><td style="padding:10px 14px;font-size:12px">'+(b.type||"—")+'</td><td style="padding:10px 14px;font-size:12px;color:#666">'+(b.period||"—")+'</td><td style="padding:10px 14px;font-size:13px;font-weight:500;color:#1e6e2e">'+(b.amount?"₺"+Number(b.amount).toLocaleString():"—")+'</td><td style="padding:10px 14px"><span style="display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;'+sc+'">'+sl+'</span></td><td style="padding:10px 14px"><button onclick="bonApprove(\''+b.id+'\')" style="background:none;border:none;cursor:pointer;color:#1e6e2e;font-size:12px;margin-right:6px">✓ Onayla</button><button onclick="bonDel(\''+b.id+'\')" style="background:none;border:none;cursor:pointer;color:#c62828;font-size:13px">🗑</button></td></tr>';
+    }).join("");
+  });
+}
+
+function bonNew(){_bonEdit=null;document.getElementById("bontitle").textContent="Prim Hazirla";["bn-emp","bn-amt"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});document.getElementById("bonmodal").style.display="flex";}
+function bonClose(){document.getElementById("bonmodal").style.display="none";}
+function bonSave(){
+  var emp=document.getElementById("bn-emp").value.trim();if(!emp){alert("Personel adi zorunlu");return;}
+  var data={employee:emp,type:document.getElementById("bn-type").value,period:document.getElementById("bn-period").value,amount:parseFloat(document.getElementById("bn-amt").value)||0,status:"bekliyor",createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  db.collection("to_bonuses").add(data).then(function(){bonClose();bonLoad();});
+}
+function bonApprove(id){db.collection("to_bonuses").doc(id).update({status:"onaylandi",updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){bonLoad();});}
+function bonDel(id){if(!confirm("Silmek istediginize emin misiniz?"))return;db.collection("to_bonuses").doc(id).delete().then(function(){bonLoad();});}
+
+// ============================================================
+// SIDEBAR GUNCELLE - Tum modulleri bagla
+// ============================================================
+var _origGetShell = getShell;
+getShell = function() {
+  return _origGetShell().replace(
+    'onclick="showPage(\'Siparisler\')"', 'onclick="showOrders()"'
+  ).replace(
+    'onclick="showPage(\'Finans ve Metaller\')"', 'onclick="showFinans()"'
+  ).replace(
+    'onclick="showPage(\'Numune Arsivi\')"', 'onclick="showSamples()"'
+  ).replace(
+    'onclick="showPage(\'Navlun Kargo\')"', 'onclick="showNavlun()"'
+  ).replace(
+    'onclick="showPage(\'Yapilacaklar\')"', 'onclick="showTasks()"'
+  ).replace(
+    'onclick="showPage(\'IK Hub\')"', 'onclick="showIK()"'
+  ).replace(
+    'onclick="showPage(\'Prim Yonetimi\')"', 'onclick="showBonus()"'
+  ).replace(
+    'onclick="showPage(\'Duyurular\')"', 'onclick="showDuyurular()"'
+  );
+};
