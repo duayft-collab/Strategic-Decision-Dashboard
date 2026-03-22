@@ -2,30 +2,66 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TradeOS</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
 <style>
-body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f3;margin:0}
-.loader{text-align:center}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#1a1a1a;margin:0 3px;animation:bounce 1s infinite}
-.dot:nth-child(2){animation-delay:.15s}
-.dot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:#f5f5f3;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border-radius:16px;border:1px solid #e0e0e0;padding:40px;width:380px;max-width:95vw}
+h1{font-size:22px;font-weight:600;margin-bottom:6px}
+p{font-size:13px;color:#666;margin-bottom:28px}
+label{font-size:12px;color:#666;display:block;margin-bottom:5px;font-weight:500}
+input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #ddd;font-size:14px;margin-bottom:16px;font-family:inherit}
+button{width:100%;padding:11px;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;border:none;cursor:pointer;font-family:inherit}
+button:hover{opacity:0.85}
+.error{background:#fee;color:#c00;padding:10px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
 </style>
 </head>
 <body>
-<div class="loader">
-  <div style="font-size:18px;font-weight:500;margin-bottom:16px">TradeOS</div>
-  <div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+<div class="card">
+  <h1>TradeOS</h1>
+  <p>Uluslararası Ticaret Yönetim Sistemi</p>
+  <div class="error" id="err"></div>
+  <label>E-posta</label>
+  <input type="email" id="email" placeholder="admin@firma.com">
+  <label>Şifre</label>
+  <input type="password" id="pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')giris()">
+  <button onclick="giris()">Giriş Yap</button>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB5eValPPkRuPtJIgDnB7jRWOt2zythuRI",
+  authDomain: "companyplatform-9e1a8.firebaseapp.com",
+  projectId: "companyplatform-9e1a8",
+  storageBucket: "companyplatform-9e1a8.firebasestorage.app",
+  messagingSenderId: "526343866340",
+  appId: "1:526343866340:web:31f9c04b85e284eac7e9f1"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
 auth.onAuthStateChanged(user => {
-  if (user) window.location.href = "pages/dashboard.html";
-  else window.location.href = "pages/login.html";
+  if(user) window.location.href = "pages/dashboard.html";
 });
+
+function giris() {
+  const email = document.getElementById("email").value;
+  const pass  = document.getElementById("pass").value;
+  const err   = document.getElementById("err");
+  err.style.display = "none";
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => window.location.href = "pages/dashboard.html")
+    .catch(e => {
+      err.style.display = "block";
+      err.textContent = e.code === "auth/wrong-password" ? "Şifre hatalı" :
+                        e.code === "auth/user-not-found" ? "Kullanıcı bulunamadı" :
+                        "Hata: " + e.message;
+    });
+}
 </script>
 </body>
 </html>
