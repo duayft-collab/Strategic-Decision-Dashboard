@@ -3,30 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TradeOS</title>
+<title>TradeOS — Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,sans-serif;background:#f5f5f3;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{background:#fff;border-radius:16px;border:1px solid #e0e0e0;padding:40px;width:380px;max-width:95vw}
-h1{font-size:22px;font-weight:600;margin-bottom:6px}
-p{font-size:13px;color:#666;margin-bottom:28px}
-label{font-size:12px;color:#666;display:block;margin-bottom:5px;font-weight:500}
-input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #ddd;font-size:14px;margin-bottom:16px;font-family:inherit}
-button{width:100%;padding:11px;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;border:none;cursor:pointer;font-family:inherit}
-button:hover{opacity:0.85}
-.error{background:#fee;color:#c00;padding:10px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
+body{font-family:-apple-system,sans-serif;background:#f5f5f3}
+.topbar{background:#fff;border-bottom:1px solid #e0e0e0;padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:15px;font-weight:600}
+.user{font-size:13px;color:#666;display:flex;align-items:center;gap:12px}
+.btn-logout{padding:6px 12px;border-radius:8px;border:1px solid #ddd;background:transparent;font-size:12px;cursor:pointer;font-family:inherit}
+.content{padding:32px;max-width:1200px;margin:0 auto}
+h2{font-size:20px;font-weight:600;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.card{background:#fff;border-radius:12px;border:1px solid #e0e0e0;padding:20px;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:#999}
+.card-icon{font-size:28px;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.card-sub{font-size:12px;color:#999}
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>TradeOS</h1>
-  <p>Uluslararası Ticaret Yönetim Sistemi</p>
-  <div class="error" id="err"></div>
-  <label>E-posta</label>
-  <input type="email" id="email" placeholder="admin@firma.com">
-  <label>Şifre</label>
-  <input type="password" id="pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')giris()">
-  <button onclick="giris()">Giriş Yap</button>
+
+<div class="topbar">
+  <div class="logo">TradeOS</div>
+  <div class="user">
+    <span id="userName">—</span>
+    <button class="btn-logout" onclick="cikis()">Çıkış</button>
+  </div>
+</div>
+
+<div class="content">
+  <h2>Hoş geldiniz 👋</h2>
+  <div class="grid">
+    <div class="card"><div class="card-icon">◎</div><div class="card-title">CRM</div><div class="card-sub">Müşteri & Tedarikçi</div></div>
+    <div class="card"><div class="card-icon">📦</div><div class="card-title">Siparişler</div><div class="card-sub">Sipariş & Sevkiyat</div></div>
+    <div class="card"><div class="card-icon">📄</div><div class="card-title">Dokümanlar</div><div class="card-sub">Belge yönetimi</div></div>
+    <div class="card"><div class="card-icon">💰</div><div class="card-title">Finans</div><div class="card-sub">Alacak & Metaller</div></div>
+    <div class="card"><div class="card-icon">🚢</div><div class="card-title">Navlun</div><div class="card-sub">Kargo & Lojistik</div></div>
+    <div class="card"><div class="card-icon">🧵</div><div class="card-title">Numune Arşivi</div><div class="card-sub">Ürün numuneleri</div></div>
+    <div class="card"><div class="card-icon">📢</div><div class="card-title">Duyurular</div><div class="card-sub">Şirket duyuruları</div></div>
+    <div class="card"><div class="card-icon">📅</div><div class="card-title">Takvim</div><div class="card-sub">Etkinlik & Görevler</div></div>
+    <div class="card"><div class="card-icon">👥</div><div class="card-title">İK Hub</div><div class="card-sub">Personel yönetimi</div></div>
+    <div class="card"><div class="card-icon">💡</div><div class="card-title">Vizyon</div><div class="card-sub">İlham kütüphanesi</div></div>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -45,22 +63,15 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 auth.onAuthStateChanged(user => {
-  if(user) window.location.href = "pages/dashboard.html";
+  if (!user) {
+    window.location.href = "../index.html";
+  } else {
+    document.getElementById("userName").textContent = user.email;
+  }
 });
 
-function giris() {
-  const email = document.getElementById("email").value;
-  const pass  = document.getElementById("pass").value;
-  const err   = document.getElementById("err");
-  err.style.display = "none";
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(() => window.location.href = "pages/dashboard.html")
-    .catch(e => {
-      err.style.display = "block";
-      err.textContent = e.code === "auth/wrong-password" ? "Şifre hatalı" :
-                        e.code === "auth/user-not-found" ? "Kullanıcı bulunamadı" :
-                        "Hata: " + e.message;
-    });
+function cikis() {
+  auth.signOut().then(() => window.location.href = "../index.html");
 }
 </script>
 </body>
