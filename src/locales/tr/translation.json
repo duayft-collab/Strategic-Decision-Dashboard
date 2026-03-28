@@ -1,0 +1,20 @@
+{
+  "dashboard": "Ana Sayfa", "portfolio": "Toplam Portföy", "profit": "Toplam Kâr",
+  "vs_gold": "Altına Göre", "vs_usd": "USD'ye Göre", "vs_btc": "Bitcoin'e Göre",
+  "properties": "Mülklerim", "add_property": "Mülk Ekle",
+  "buy_price": "Alış Fiyatı", "current_value": "Güncel Değer",
+  "detail": "Detay", "calculator": "Hesap Makinesi",
+  "login": "Giriş Yap", "logout": "Çıkış", "email": "E-posta", "password": "Şifre",
+  "save": "Kaydet", "cancel": "İptal", "undo": "Geri Al", "deleted": "Silindi",
+  "property_name": "Mülk Adı", "property_type": "Tür", "location": "Konum", "buy_date": "Alış Tarihi",
+  "daire": "Daire", "arsa": "Arsa", "tarla": "Tarla", "isyeri": "İşyeri", "villa": "Villa",
+  "monthly_payment": "Aylık Taksit", "total_cost": "Toplam Maliyet", "amortization": "Amortisman",
+  "down_payment": "Peşinat", "loan_rate": "Kredi Oranı (%)", "rent": "Aylık Kira",
+  "comparison": "Yatırım Karşılaştırması",
+  "if_gold": "Altın yapsaydınız", "if_usd": "USD yapsaydınız", "if_btc": "Bitcoin yapsaydınız",
+  "loading": "Yükleniyor...", "error": "Hata oluştu", "no_properties": "Henüz mülk eklenmedi",
+  "profit_label": "Kâr/Zarar", "roi": "Getiri Oranı", "delete": "Sil", "edit": "Düzenle",
+  "confirm_delete": "Bu mülkü silmek istediğinize emin misiniz?",
+  "total_price": "Toplam Fiyat", "years": "Yıl", "calculate": "Hesapla",
+  "language": "Dil"
+}

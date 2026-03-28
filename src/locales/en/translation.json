@@ -1,0 +1,20 @@
+{
+  "dashboard": "Dashboard", "portfolio": "Total Portfolio", "profit": "Total Profit",
+  "vs_gold": "vs Gold", "vs_usd": "vs USD", "vs_btc": "vs Bitcoin",
+  "properties": "My Properties", "add_property": "Add Property",
+  "buy_price": "Purchase Price", "current_value": "Current Value",
+  "detail": "Detail", "calculator": "Calculator",
+  "login": "Login", "logout": "Logout", "email": "Email", "password": "Password",
+  "save": "Save", "cancel": "Cancel", "undo": "Undo", "deleted": "Deleted",
+  "property_name": "Property Name", "property_type": "Type", "location": "Location", "buy_date": "Purchase Date",
+  "daire": "Apartment", "arsa": "Land", "tarla": "Field", "isyeri": "Workplace", "villa": "Villa",
+  "monthly_payment": "Monthly Payment", "total_cost": "Total Cost", "amortization": "Amortization",
+  "down_payment": "Down Payment", "loan_rate": "Loan Rate (%)", "rent": "Monthly Rent",
+  "comparison": "Investment Comparison",
+  "if_gold": "If you bought gold", "if_usd": "If you bought USD", "if_btc": "If you bought Bitcoin",
+  "loading": "Loading...", "error": "An error occurred", "no_properties": "No properties added yet",
+  "profit_label": "Profit/Loss", "roi": "Return Rate", "delete": "Delete", "edit": "Edit",
+  "confirm_delete": "Are you sure you want to delete this property?",
+  "total_price": "Total Price", "years": "Years", "calculate": "Calculate",
+  "language": "Language"
+}
