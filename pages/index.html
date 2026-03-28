@@ -4,9 +4,62 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gayrimenkul Yönetim</title>
-<script>
-  window.location.href = '/Gayrimenkul-Normal/pages/index.html';
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: 'AIzaSyB5eValPPkRuPtJIgDnB7jRWOt2zythuRI',
+    authDomain: 'companyplatform-9e1a8.firebaseapp.com',
+    projectId: 'companyplatform-9e1a8',
+    storageBucket: 'companyplatform-9e1a8.firebasestorage.app',
+    messagingSenderId: '526343866340',
+    appId: '1:526343866340:web:31f9c04b85e284eac7e9f1',
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.location.href = '/Gayrimenkul-Normal/pages/app.html';
+    }
+  });
+
+  window.handleLogin = async () => {
+    const email    = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errEl    = document.getElementById('error');
+    errEl.textContent = '';
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      errEl.textContent = 'E-posta veya şifre hatalı.';
+    }
+  };
 </script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, sans-serif; background: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .card { background: #fff; border-radius: 12px; padding: 40px; width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  h2 { font-size: 22px; margin-bottom: 6px; }
+  p  { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+  label { font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px; }
+  input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 16px; }
+  button { width: 100%; padding: 12px; background: #111827; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  #error { color: #dc2626; font-size: 13px; margin-bottom: 12px; }
+</style>
 </head>
-<body></body>
+<body>
+<div class="card">
+  <h2>Hoş Geldiniz</h2>
+  <p>Hesabınıza giriş yapın</p>
+  <div id="error"></div>
+  <label>E-POSTA</label>
+  <input type="email" id="email" placeholder="ornek@mail.com">
+  <label>ŞİFRE</label>
+  <input type="password" id="password" placeholder="••••••••">
+  <button onclick="handleLogin()">Giriş Yap</button>
+</div>
+</body>
 </html>
